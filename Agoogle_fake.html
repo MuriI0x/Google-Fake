@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Search - AI Overview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #202124;
+            color: #e8eaed;
+            font-family: 'Roboto', arial, sans-serif;
+        }
+        .google-blue { color: #8ab4f8; }
+        .google-bg-dark { background-color: #202124; }
+        .google-bg-surface { background-color: #303134; }
+        .google-border { border-color: #3c4043; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #202124; }
+        ::-webkit-scrollbar-thumb { background: #3c4043; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #5f6368; }
+
+        .ai-gradient {
+            background: linear-gradient(90deg, rgba(66, 133, 244, 0.15), rgba(161, 66, 244, 0.15));
+        }
+        
+        .source-card {
+            background-color: #303134;
+            transition: background-color 0.2s;
+        }
+        .source-card:hover {
+            background-color: #3c4043;
+        }
+
+        .settings-panel {
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        .settings-panel.open {
+            transform: translateX(0);
+        }
+
+        /* Light Theme Overrides - Corrigido para fundo Branco na IA */
+        body.light-theme {
+            background-color: #ffffff;
+            color: #202124;
+        }
+        body.light-theme header {
+            background-color: #ffffff;
+            border-bottom-color: #dadce0;
+        }
+        body.light-theme .google-bg-surface {
+            background-color: #ffffff;
+            border-color: #dadce0;
+        }
+        body.light-theme .google-border {
+            border-color: #dadce0;
+        }
+        body.light-theme #desktop-search, 
+        body.light-theme #mobile-search {
+            color: #202124;
+        }
+        body.light-theme .tab-item {
+            color: #70757a;
+        }
+        body.light-theme .tab-item.text-blue-400 {
+            color: #1a73e8;
+            border-color: #1a73e8;
+        }
+        /* CORREÇÃO CRÍTICA: Forçando o fundo da IA para branco no modo claro */
+        body.light-theme section {
+            background-color: #ffffff !important;
+            border-color: #dadce0 !important;
+        }
+        body.light-theme .ai-text-body,
+        body.light-theme .ai-text-body strong,
+        body.light-theme .ai-text-body *,
+        body.light-theme #main-ai-bullets,
+        body.light-theme #main-ai-bullets li,
+        body.light-theme #ai-response-text {
+            color: #202124 !important;
+        }
+        body.light-theme .source-card {
+            background-color: #f8f9fa;
+            border-color: #dadce0;
+        }
+        body.light-theme .source-card:hover {
+            background-color: #f1f3f4;
+        }
+        body.light-theme .source-card p:first-child {
+            color: #70757a;
+        }
+        body.light-theme .source-card p:last-child {
+            color: #202124;
+        }
+        body.light-theme .ai-gradient {
+            background: linear-gradient(90deg, rgba(26, 115, 232, 0.05), rgba(161, 66, 244, 0.05)) !important;
+            border-bottom: 1px solid #f1f3f4;
+        }
+        body.light-theme .ai-gradient h2, 
+        body.light-theme .ai-gradient span {
+            color: #202124 !important;
+        }
+        body.light-theme .listen-btn-container button {
+            background-color: #f1f3f4;
+            color: #3c4043;
+            border: 1px solid #dadce0;
+        }
+        body.light-theme .listen-btn-container button:hover {
+            background-color: #e8eaed;
+        }
+        body.light-theme #search-results-container h3 {
+            color: #1a0dab;
+        }
+        body.light-theme #search-results-container p {
+            color: #4d5156 !important;
+        }
+        body.light-theme .ai-card-footer {
+            border-top: 1px solid #dadce0;
+            color: #70757a !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- TOP NAVIGATION -->
+    <header class="sticky top-0 z-50 bg-[#202124] border-b border-[#3c4043] md:border-none">
+        <div class="flex items-center justify-between px-4 py-3 md:px-8">
+            <div class="flex items-center flex-1">
+                <div class="mr-4 text-gray-400 cursor-pointer md:hidden">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+                </div>
+                <h1 id="brand-logo" class="text-2xl font-medium tracking-tight mr-8 cursor-pointer select-none">Google</h1>
+                
+                <!-- Desktop Search Bar -->
+                <div class="hidden md:flex items-center flex-1 max-w-2xl google-bg-surface rounded-full px-5 py-2.5 shadow-lg border border-transparent focus-within:border-[#3c4043]">
+                    <input type="text" id="desktop-search" value="Google fake feito por murilo" class="bg-transparent flex-1 outline-none text-sm" placeholder="Pesquisar">
+                    <div class="flex items-center space-x-4 ml-3">
+                        <svg class="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+                        <svg class="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5.5-2.5l7.51-3.49L17.5 6.5 9.99 9.99 6.5 17.5zm5.5-6.6c.61 0 1.1.49 1.1 1.1s-.49 1.1-1.1 1.1-1.1-.49-1.1-1.1.49-1.1 1.1-1.1z"/></svg>
+                        <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <div class="p-2 hover:bg-gray-700 rounded-full cursor-pointer hidden sm:block">
+                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 19c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM6 7c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12-1c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6-4c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6-4c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6-4c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6-4c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM6 3c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                </div>
+                <div id="profile-pic-container" class="w-8 h-8 rounded-full bg-teal-600 flex items-center justify-center text-sm font-medium border border-gray-600 overflow-hidden">
+                    <span id="profile-initial">M</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Search Bar -->
+        <div class="md:hidden px-4 pb-3">
+            <div class="flex items-center google-bg-surface rounded-full px-4 py-2 border border-gray-600">
+                <svg class="w-4 h-4 text-gray-400 mr-3" fill="currentColor" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                <input type="text" id="mobile-search" value="Google fake feito por murilo" class="bg-transparent flex-1 outline-none text-sm">
+            </div>
+        </div>
+
+        <!-- TABS -->
+        <div class="flex px-4 md:px-[160px] overflow-x-auto space-x-6 text-sm border-b border-[#3c4043] scrollbar-hide">
+            <div class="tab-item border-b-2 border-blue-400 text-blue-400 py-3 font-medium whitespace-nowrap cursor-pointer">Tudo</div>
+            <div class="tab-item border-b-2 border-transparent text-gray-400 py-3 hover:text-gray-200 whitespace-nowrap cursor-pointer">Imagens</div>
+            <div class="tab-item border-b-2 border-transparent text-gray-400 py-3 hover:text-gray-200 whitespace-nowrap cursor-pointer">Vídeos</div>
+            <div class="tab-item border-b-2 border-transparent text-gray-400 py-3 hover:text-gray-200 whitespace-nowrap cursor-pointer">Notícias</div>
+            <div class="tab-item border-b-2 border-transparent text-gray-400 py-3 hover:text-gray-200 whitespace-nowrap cursor-pointer">Shopping</div>
+            <div class="tab-item border-b-2 border-transparent text-gray-400 py-3 hover:text-gray-200 whitespace-nowrap cursor-pointer">Maps</div>
+            <div class="tab-item border-b-2 border-transparent text-gray-400 py-3 hover:text-gray-200 whitespace-nowrap cursor-pointer">Mais</div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-screen-xl mx-auto px-4 md:px-[160px] py-6">
+        
+        <!-- AI OVERVIEW CARD -->
+        <section class="bg-[#171717] rounded-3xl overflow-hidden border border-[#3c4043] mb-8 shadow-sm">
+            <!-- Header AI -->
+            <div class="ai-gradient px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xl">✨</span>
+                    <h2 class="font-medium text-gray-200">Visão geral criada por IA</h2>
+                </div>
+                <div class="text-gray-400 hover:text-white cursor-pointer p-1">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="p-6">
+                <div class="listen-btn-container">
+                    <button class="flex items-center space-x-2 bg-[#3c4043] hover:bg-[#4a4e53] px-3 py-1.5 rounded-full text-xs font-medium mb-4 transition-colors">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                        <span>Ouvir</span>
+                    </button>
+                </div>
+
+                <div id="ai-response-text" class="text-lg leading-relaxed text-gray-200 mb-6">
+                    sou muito inteligente
+                </div>
+
+                <!-- Source Bubbles/Cards -->
+                <div class="flex overflow-x-auto space-x-3 pb-2 scrollbar-hide" id="ai-sources">
+                    <!-- Dynamic Sources -->
+                </div>
+            </div>
+
+            <!-- Footer AI -->
+            <div class="ai-card-footer px-6 py-4 border-t border-[#3c4043] flex items-center justify-between text-xs text-gray-400">
+                <div class="flex space-x-4">
+                    <button class="hover:text-gray-200">Ver mais</button>
+                    <button class="hover:text-gray-200">Copiar</button>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span>A IA pode cometer erros</span>
+                    <div class="flex space-x-1">
+                        <button class="p-1 hover:bg-[#3c4043] rounded"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg></button>
+                        <button class="p-1 hover:bg-[#3c4043] rounded"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Search Results -->
+        <div id="search-results-container" class="space-y-8 mt-10">
+            <!-- Dynamic Results -->
+        </div>
+    </main>
+
+    <!-- FLOATING SETTINGS BUTTON -->
+    <button id="toggle-settings" class="fixed bottom-6 right-6 w-12 h-12 bg-blue-600 text-white rounded-full shadow-2xl flex items-center justify-center hover:bg-blue-500 transition-all z-[100]">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+    </button>
+
+    <!-- SETTINGS PANEL -->
+    <div id="settings-panel" class="settings-panel fixed top-0 right-0 h-full w-80 bg-[#303134] shadow-2xl z-[101] p-6 overflow-y-auto border-l border-[#3c4043]">
+        <div class="flex justify-between items-center mb-8">
+            <h3 class="text-xl font-bold">Personalizar</h3>
+            <button id="close-settings" class="text-gray-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+
+        <div class="space-y-6 pb-20">
+            <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Tema & Aparência</label>
+                <div class="flex items-center justify-between bg-[#202124] p-3 rounded-lg border border-[#3c4043]">
+                    <span class="text-sm">Modo Claro</span>
+                    <button id="theme-toggle-btn" class="w-12 h-6 bg-gray-600 rounded-full relative transition-colors">
+                        <div id="theme-toggle-circle" class="absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform"></div>
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Foto de Perfil</label>
+                <div class="flex items-center space-x-3 bg-[#202124] p-3 rounded-lg border border-[#3c4043]">
+                    <div id="editor-profile-preview" class="w-10 h-10 rounded-full bg-teal-600 flex items-center justify-center overflow-hidden border border-gray-600">
+                        <span id="editor-profile-initial">M</span>
+                    </div>
+                    <label class="flex-1 cursor-pointer bg-blue-600 hover:bg-blue-500 text-white text-center py-2 rounded-md text-xs font-bold transition-colors">
+                        ESCOLHER FOTO
+                        <input type="file" id="input-profile-pic" class="hidden" accept="image/*">
+                    </label>
+                    <button id="remove-pic-btn" class="p-2 text-gray-400 hover:text-red-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Branding & Pesquisa</label>
+                <div class="space-y-3">
+                    <input type="text" id="input-logo" placeholder="Logo do site (ex: Google)" class="w-full bg-[#202124] border border-[#3c4043] rounded-lg px-4 py-2 outline-none focus:border-blue-500 text-sm">
+                    <input type="text" id="input-search" placeholder="Termo de pesquisa" class="w-full bg-[#202124] border border-[#3c4043] rounded-lg px-4 py-2 outline-none focus:border-blue-500 text-sm">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Visão Geral da IA</label>
+                <div class="space-y-3 mb-4">
+                    <div class="flex justify-between items-end">
+                        <p class="text-[10px] text-gray-500 uppercase font-bold">Texto da IA</p>
+                        <button onclick="insertBold()" class="text-[10px] bg-blue-600 px-2 py-0.5 rounded text-white font-bold">NEGRITO</button>
+                    </div>
+                    <textarea id="input-ai-summary" rows="4" class="w-full bg-[#202124] border border-[#3c4043] rounded-lg px-4 py-2 outline-none focus:border-blue-500 text-sm" placeholder="Dica: use ** para negrito"></textarea>
+                    <p class="text-[9px] text-gray-500 italic">Dica: Coloque o texto entre **asteriscos** para destacar.</p>
+                    
+                    <p class="text-[10px] text-gray-500 uppercase font-bold mt-4">Lista de Tópicos</p>
+                    <div id="bullets-editor-list" class="space-y-2"></div>
+                    <button id="add-bullet-btn" class="w-full py-1.5 bg-gray-700 text-gray-300 rounded-lg text-[10px] font-bold hover:bg-gray-600 transition-colors">+ Adicionar Ponto</button>
+                </div>
+                
+                <p class="text-[10px] text-gray-400 uppercase font-bold mb-2">Fontes da IA (Cartões)</p>
+                <div id="sources-editor-list" class="space-y-2 mb-2"></div>
+                <button id="add-source-btn" class="w-full py-2 bg-blue-600/20 text-blue-400 border border-blue-600/50 rounded-lg text-xs font-bold hover:bg-blue-600/30">+ Adicionar Fonte</button>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Resultados de Pesquisa</label>
+                <div id="results-editor-list" class="space-y-4 mb-2"></div>
+                <button id="add-result-btn" class="w-full py-2 bg-blue-600/20 text-blue-400 border border-blue-600/50 rounded-lg text-xs font-bold hover:bg-blue-600/30">+ Adicionar Resultado</button>
+            </div>
+
+            <div class="pt-4 border-t border-[#3c4043]">
+                <button id="reset-btn" class="w-full bg-red-900/20 text-red-400 border border-red-900/50 py-2 rounded-lg text-xs font-bold hover:bg-red-900/30 transition-colors">
+                    RESTAURAR TUDO
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State Management
+        let appState = {
+            theme: 'dark', // 'dark' or 'light'
+            profilePic: null, // Base64 string
+            logo: 'Google',
+            query: 'Google fake feito por murilo',
+            aiSummary: 'sou muito inteligente',
+            aiBullets: [
+                'Feito com carinho',
+                'Totalmente personalizável',
+                'Interface moderna'
+            ],
+            sources: [
+                { domain: 'gov.br', title: 'O que é a CLT e quais os principais direitos...' },
+                { domain: 'jusbrasil', title: 'Consolidação das Leis do Trabalho - Decreto Lei...' },
+                { domain: 'g1.globo.com', title: 'Entenda como funciona o contrato CLT no Brasil' }
+            ],
+            results: [
+                { url: 'https://brasilescola.uol.com.br › sociologia', title: 'CLT: o que é, história, direitos e deveres - Brasil Escola', description: 'A CLT é a Consolidação das Leis do Trabalho e foi criada para reunir toda a legislação trabalhista no país em um único documento...' },
+                { url: 'https://www.totvs.com › blog › clt', title: 'Tudo sobre a CLT: guia completo para empresas e RH', description: 'Saiba o que é CLT, como surgiu e quais são os principais direitos dos trabalhadores regidos por esse modelo de contratação...' }
+            ]
+        };
+
+        // DOM Elements
+        const logoEl = document.getElementById('brand-logo');
+        const desktopSearch = document.getElementById('desktop-search');
+        const mobileSearch = document.getElementById('mobile-search');
+        const aiTextEl = document.getElementById('ai-response-text');
+        const aiSourcesContainer = document.getElementById('ai-sources');
+        const searchResultsContainer = document.getElementById('search-results-container');
+
+        // Input Elements
+        const inputLogo = document.getElementById('input-logo');
+        const inputSearch = document.getElementById('input-search');
+        const inputAiSummary = document.getElementById('input-ai-summary');
+        const bulletsEditorList = document.getElementById('bullets-editor-list');
+        const sourcesEditorList = document.getElementById('sources-editor-list');
+        const resultsEditorList = document.getElementById('results-editor-list');
+
+        function formatText(text) {
+            // Converte **texto** em <strong>texto</strong> (igual WhatsApp/ChatGPT)
+            // Removemos a classe text-white para que a cor seja herdada corretamente do tema
+            return text.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold">$1</strong>');
+        }
+
+        function updateDisplay() {
+            // Theme Update
+            if (appState.theme === 'light') {
+                document.body.classList.add('light-theme');
+                document.getElementById('theme-toggle-btn').classList.replace('bg-gray-600', 'bg-blue-600');
+                document.getElementById('theme-toggle-circle').style.transform = 'translateX(24px)';
+            } else {
+                document.body.classList.remove('light-theme');
+                document.getElementById('theme-toggle-btn').classList.replace('bg-blue-600', 'bg-gray-600');
+                document.getElementById('theme-toggle-circle').style.transform = 'translateX(0)';
+            }
+
+            // Profile Picture Update
+            const profileContainer = document.getElementById('profile-pic-container');
+            const editorPreview = document.getElementById('editor-profile-preview');
+
+            if (appState.profilePic) {
+                const imgHtml = `<img src="${appState.profilePic}" class="w-full h-full object-cover">`;
+                profileContainer.innerHTML = imgHtml;
+                editorPreview.innerHTML = imgHtml;
+            } else {
+                profileContainer.innerHTML = `<span id="profile-initial">M</span>`;
+                editorPreview.innerHTML = `<span id="editor-profile-initial">M</span>`;
+            }
+
+            logoEl.innerText = appState.logo;
+            desktopSearch.value = appState.query;
+            mobileSearch.value = appState.query;
+            document.title = appState.query + ' - Pesquisa Google';
+
+            let bulletsHtml = appState.aiBullets.length > 0 
+                ? `<ul id="main-ai-bullets" class="list-disc ml-6 mt-4 space-y-1 text-base text-gray-300">${appState.aiBullets.map((b, i) => `<li id="bullet-item-${i}">${b}</li>`).join('')}</ul>` 
+                : '';
+            
+            aiTextEl.innerHTML = `
+                <div class="ai-text-body">${formatText(appState.aiSummary)}</div>
+                ${bulletsHtml}
+            `;
+
+            aiSourcesContainer.innerHTML = appState.sources.map((src, i) => `
+                <div id="source-card-${i}" class="source-card min-w-[140px] p-3 rounded-2xl border border-[#3c4043] flex flex-col justify-between h-[100px] cursor-pointer">
+                    <p class="text-[10px] text-gray-400 uppercase tracking-wider font-bold truncate">${src.domain}</p>
+                    <p class="text-xs line-clamp-2 font-medium">${src.title}</p>
+                </div>
+            `).join('');
+
+            searchResultsContainer.innerHTML = appState.results.map((res, i) => `
+                <div id="search-result-${i}" class="max-w-xl mb-8">
+                    <p class="text-sm text-gray-400 mb-1 truncate">${res.url}</p>
+                    <h3 class="text-xl text-[#8ab4f8] hover:underline cursor-pointer mb-1">${res.title}</h3>
+                    <p class="text-sm text-gray-300 leading-relaxed">${res.description}</p>
+                </div>
+            `).join('');
+        }
+
+        function renderEditor() {
+            inputLogo.value = appState.logo;
+            inputSearch.value = appState.query;
+            inputAiSummary.value = appState.aiSummary;
+
+            bulletsEditorList.innerHTML = appState.aiBullets.map((bullet, index) => `
+                <div class="flex items-center space-x-2 group">
+                    <input type="text" value="${bullet}" oninput="updateBullet(${index}, this.value)" placeholder="Ponto da lista..." class="flex-1 bg-[#202124] border border-[#3c4043] rounded px-2 py-2 outline-none text-sm focus:border-blue-500">
+                    <button onclick="removeBullet(${index})" class="text-gray-500 hover:text-red-500 p-2">✕</button>
+                </div>
+            `).join('');
+
+            sourcesEditorList.innerHTML = appState.sources.map((src, index) => `
+                <div class="p-3 bg-[#202124] border border-[#3c4043] rounded-lg space-y-2 relative">
+                    <input type="text" value="${src.domain}" oninput="updateSource(${index}, 'domain', this.value)" placeholder="Domínio" class="w-full bg-transparent border-b border-gray-700 outline-none text-[10px] font-bold uppercase text-gray-400 py-1">
+                    <input type="text" value="${src.title}" oninput="updateSource(${index}, 'title', this.value)" placeholder="Título" class="w-full bg-transparent outline-none text-sm py-1">
+                    <button onclick="removeSource(${index})" class="absolute top-2 right-2 bg-red-500/20 text-red-500 rounded-full w-6 h-6 flex items-center justify-center text-xs">✕</button>
+                </div>
+            `).join('');
+
+            resultsEditorList.innerHTML = appState.results.map((res, index) => `
+                <div class="p-3 bg-[#202124] border border-[#3c4043] rounded-lg space-y-2 relative">
+                    <input type="text" value="${res.url}" oninput="updateResult(${index}, 'url', this.value)" placeholder="URL Visível" class="w-full bg-transparent border-b border-gray-700 outline-none text-xs text-gray-400 py-1">
+                    <input type="text" value="${res.title}" oninput="updateResult(${index}, 'title', this.value)" placeholder="Título do Site" class="w-full bg-transparent border-b border-gray-700 outline-none text-sm text-blue-400 py-1">
+                    <textarea oninput="updateResult(${index}, 'description', this.value)" placeholder="Descrição" class="w-full bg-transparent outline-none text-xs text-gray-300 resize-none py-1" rows="2">${res.description}</textarea>
+                    <button onclick="removeResult(${index})" class="absolute top-2 right-2 bg-red-500/20 text-red-500 rounded-full w-6 h-6 flex items-center justify-center text-xs">✕</button>
+                </div>
+            `).join('');
+        }
+
+        window.updateBullet = (index, value) => {
+            appState.aiBullets[index] = value;
+            const el = document.getElementById(`bullet-item-${index}`);
+            if (el) el.innerText = value;
+        };
+
+        window.removeBullet = (index) => {
+            appState.aiBullets.splice(index, 1);
+            updateDisplay();
+            renderEditor();
+        };
+
+        window.updateSource = (index, field, value) => {
+            appState.sources[index][field] = value;
+            const card = document.getElementById(`source-card-${index}`);
+            if (card) {
+                if (field === 'domain') card.querySelector('p:first-child').innerText = value;
+                if (field === 'title') card.querySelector('p:last-child').innerText = value;
+            }
+        };
+
+        window.removeSource = (index) => {
+            appState.sources.splice(index, 1);
+            updateDisplay();
+            renderEditor();
+        };
+
+        window.updateResult = (index, field, value) => {
+            appState.results[index][field] = value;
+            const res = document.getElementById(`search-result-${index}`);
+            if (res) {
+                if (field === 'url') res.querySelector('p:first-child').innerText = value;
+                if (field === 'title') res.querySelector('h3').innerText = value;
+                if (field === 'description') res.querySelector('p:last-child').innerText = value;
+            }
+        };
+
+        window.removeResult = (index) => {
+            appState.results.splice(index, 1);
+            updateDisplay();
+            renderEditor();
+        };
+
+        inputLogo.addEventListener('input', (e) => { appState.logo = e.target.value; logoEl.innerText = e.target.value; });
+        inputSearch.addEventListener('input', (e) => { 
+            appState.query = e.target.value; 
+            desktopSearch.value = e.target.value;
+            mobileSearch.value = e.target.value;
+            document.title = e.target.value + ' - Pesquisa Google';
+        });
+
+        let summaryTimeout;
+        window.insertBold = () => {
+            const start = inputAiSummary.selectionStart;
+            const end = inputAiSummary.selectionEnd;
+            const text = inputAiSummary.value;
+            const before = text.substring(0, start);
+            const after = text.substring(end, text.length);
+            const selected = text.substring(start, end) || "destaque";
+            
+            inputAiSummary.value = before + "**" + selected + "**" + after;
+            appState.aiSummary = inputAiSummary.value;
+            updateDisplay();
+            inputAiSummary.focus();
+            inputAiSummary.setSelectionRange(start + 2, start + 2 + selected.length);
+        };
+
+        inputAiSummary.addEventListener('input', (e) => { 
+            appState.aiSummary = e.target.value;
+            clearTimeout(summaryTimeout);
+            summaryTimeout = setTimeout(() => {
+                updateDisplay();
+            }, 50);
+        });
+
+        // Theme Toggle Event
+        document.getElementById('theme-toggle-btn').addEventListener('click', () => {
+            appState.theme = appState.theme === 'dark' ? 'light' : 'dark';
+            updateDisplay();
+        });
+
+        // Profile Picture Upload
+        document.getElementById('input-profile-pic').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    appState.profilePic = event.target.result;
+                    updateDisplay();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Remove Profile Picture
+        document.getElementById('remove-pic-btn').addEventListener('click', () => {
+            appState.profilePic = null;
+            updateDisplay();
+        });
+
+        document.getElementById('add-bullet-btn').addEventListener('click', () => {
+            appState.aiBullets.push('Novo ponto...');
+            updateDisplay();
+            renderEditor();
+        });
+
+        document.getElementById('add-source-btn').addEventListener('click', () => {
+            appState.sources.push({ domain: 'novo.com', title: 'Título da fonte...' });
+            updateDisplay();
+            renderEditor();
+        });
+
+        document.getElementById('add-result-btn').addEventListener('click', () => {
+            appState.results.push({ url: 'https://...', title: 'Novo Resultado', description: 'Descrição do site...' });
+            updateDisplay();
+            renderEditor();
+        });
+
+        document.getElementById('toggle-settings').addEventListener('click', () => {
+            document.getElementById('settings-panel').classList.add('open');
+            renderEditor();
+        });
+        
+        document.getElementById('close-settings').addEventListener('click', () => {
+            document.getElementById('settings-panel').classList.remove('open');
+        });
+        
+        document.getElementById('reset-btn').addEventListener('click', () => {
+            if(confirm('Restaurar tudo para os padrões?')) location.reload();
+        });
+
+        desktopSearch.addEventListener('input', (e) => { appState.query = e.target.value; updateDisplay(); inputSearch.value = e.target.value; });
+        mobileSearch.addEventListener('input', (e) => { appState.query = e.target.value; updateDisplay(); inputSearch.value = e.target.value; });
+
+        document.querySelectorAll('.tab-item').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab-item').forEach(t => {
+                    t.classList.remove('border-blue-400', 'text-blue-400');
+                    t.classList.add('border-transparent', 'text-gray-400');
+                });
+                tab.classList.remove('border-transparent', 'text-gray-400');
+                tab.classList.add('border-blue-400', 'text-blue-400');
+            });
+        });
+
+        updateDisplay();
+    </script>
+</body>
+</html>
